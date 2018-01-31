@@ -5,7 +5,7 @@
 
 Follow along at:
 
-https://github.com/bdbfox/splunkgrafanaovaerview
+https://github.com/bdbfox/splunkgrafanaoverview
 
 ---
 
@@ -160,7 +160,22 @@ More detailed information on the infrustructure
 
 ---
 
-### Add inputs to your dashboard
+
+### Add your first panel
+
+#### Add a table of requests by status code and method
+
+1. Click "Add Panel".
+2. Choose New -> Statistics Table.
+3. Choose a reasonable time range.
+4. Write your query. Try and limit your data if you can.
+```
+index="dcg_prod" path=* | stats count by sc, method | sort count desc
+```
+
+---
+
+### Convert your panel to use inputs
 
 #### Add a index filter
 
@@ -169,7 +184,7 @@ More detailed information on the infrustructure
 3. Give it a label (optional).
 4. Click "Search on Change".
 5. Give it a memorable token name. You will reference this as `${tokenName}$` in your queries.
-6. Make it dynamic or static. Dynamic indices would be:
+6. Make it dynamic or static. If you choose to use a dynamic filter put in the search string and choose fields for label and value. A good dynamic list for indices query is:
   ```
   | eventcount summarize=false index=* | dedup index | fields index
   ```
@@ -180,18 +195,88 @@ More detailed information on the infrustructure
 #### Add a time range filter
 
 1. Click "Add Input".
-2. Choose Dropdown.
+2. Choose Time.
 3. Give it a label (optional).
 4. Click "Search on Change".
 5. Give it a memorable token name. You will reference this as `${tokenName}$` in your queries.
-6. Make it dynamic or static. Dynamic indices would be:
-  ```
-  | eventcount summarize=false index=* | dedup index | fields index
-  ```
-7. Choose defaults.
+6. Give it a reasonable default.
 
 ---
 
-## Grafana Advanced Topics
+#### Change your panel to use these
+
+1. Adjust the query to change the index to use the token.
+`index=$index_token$`
+2. Adjust the time range to use the "Shared Time Picker".
+
+##### Note: Sometimes splunk gets cranky. Try clicking on "Source" and then back to "UI" to resolve.
+--- 
+
+### Create a response time pie chart
+
+1. Click on "Add Panel"
+2. Choose New -> Pie Chart
+3. Select Shared Time Picker
+4. Enter your query and setup the ranges
+```
+index=$index_token$ path=*
+  | rangemap field=rt "<0.5"=0-50 "<1"=0-100 "<1.5"=0-150 "<2.0"=0-200 default=">2.0"
+  | stats count as "Number of Transactions" by range
+```
+
+---
+
+### Create a list of top apikeys
+
+1. Click on "Add Panel"
+2. Choose New -> Statistics Table
+3. Select Shared Time Picker
+4. Enter your query
+```
+index=$index_token$ path!=* | top apikey
+```
+
+###### Adjust your apikey list to be by service
+
+```
+index=$index_token$ path!="/service/health*" | stats count by "attrs.SERVICE_NAME", apikey | sort count desc
+```
+
+---
+
+### Create a geo location cluster chart
+
+1. Click on "Add Panel"
+2. Choose New -> Cluster Map
+3. Select Shared Time Picker
+4. Create your query
+```
+index=$index_token$ "attrs.SERVICE_NAME"=screens method=GET geoLongitude
+  | rex "geoLongitude=\+?(?<longitude>[0-9.-]*)"
+  | rex "geoLatitude=\+?(?<latitude>[0-9.-]*)"
+  | geostats latfield=latitude longfield=longitude count
+```
+
+---
+
+### Lookup Tables
+
+TBD
+
+---
+
+# Grafana Advanced Topics
+
+---
+
+## Creating a dashboard in Grafana
+
+1. Click on the menu -> Dashboards and select "New"
+2. Choose a panel type, Graph
+3. Click on the title of the panel to get to the Edit screen
+4. Choose your data source and write your query
+
+More details to come
+
 
 
