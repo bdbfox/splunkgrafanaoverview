@@ -3,9 +3,13 @@
 <!-- $size: 16:9 -->
 # Splunk and Grafana Overview
 
+Follow along at:
+
+https://github.com/bdbfox/splunkgrafanaovaerview
+
 ---
 
-## Splunk Basics
+# Splunk Basics
 
 splunk.admin.foxdcg.com (http://splunk.admin.foxdcg.com/)
 
@@ -18,7 +22,7 @@ If you don't have access contact, contact Brian DeBoer, Fabian Utomi or Shakeel 
 ### Select the index to search against
 
 * API service log data is in dcg_prod, dcg_stage, etc...
-    index="dcg_prod"
+  `index="dcg_prod"`
 * If you can't remember what indices there are:
 ```
 | eventcount summarize=false index=* 
@@ -30,12 +34,12 @@ If you don't have access contact, contact Brian DeBoer, Fabian Utomi or Shakeel 
 ### Basic search guidelines
 
 * Generally, you need quotes around phrases and field values that include white spaces, commas, pipes, quotes, or brackets.
-* You can do wildcard with an asterisk, this can be before or after, ex. something* vs *something
-* If you need to you can backslash ( \\ ) asterisks or quotes to search for those characters
-* You can use AND, NOT and OR, and group queries with (), AND is implied
+* You can do wildcard with an asterisk, this can be before or after, ex. something* vs *something.
+* If you need to you can backslash ( \\ ) asterisks or quotes to search for those characters.
+* You can use AND, NOT and OR, and group queries with (), AND is implied.
 * For numeric values you can use >, <, >=, <= etc...
-* != is not the same as NOT. != will hide results that are missing the field name
-* Keep the time range at a reasonable limit to optimize your queries
+* != is not the same as NOT. != will hide results that are missing the field name.
+* Keep the time range at a reasonable limit to optimize your queries.
 * Use realtime search to look for data as it comes in.
 
 ---
@@ -43,25 +47,25 @@ If you don't have access contact, contact Brian DeBoer, Fabian Utomi or Shakeel 
 ### Log Format
 
 * Logs are formatted as space separated key value pairs. By doing it in that format, you get automatic field separation when you format your logs in that way.
-* Data in logs that includes spaces or special characters should be wrapped in quotes, ie. request paths
-* Data that you'd like to be treated as numeric (to be able to do ranges queries for) should not be wrapped in a quote
+* Data in logs that includes spaces or special characters should be wrapped in quotes, ie. request paths.
+* Data that you'd like to be treated as numeric (to be able to do ranges queries for) should not be wrapped in a quote.
 
 ---
 
 ### Important (Automatic) fields
 
-* attrs.SERVICE_NAME - the name of the service
-* attrs.SERVICE_VERSION - the version of the service, ie. v1, v2, etc...
-* rt => Response Time in ms
-* os => Offset from request start in ms
-* method => The request method, ie. GET, POST, PUT
-* dma => The dma that the request came through
-* handler => The “controller” or action that processed the request
-* rid => request id - A unique identifier for every incoming request
-* level => The log level, ie. info, warn, error
-* path => The request path
-* sc => Status code. ie 200, 404, 500
-* t => The ISO8601 timestamp of the log statement
+* `attrs.SERVICE_NAME` - the name of the service
+* `attrs.SERVICE_VERSION` - the version of the service, ie. v1, v2, etc...
+* `rt` - Response Time in ms
+* `os` - Offset from request start in ms
+* `method` - The request method, ie. GET, POST, PUT
+* `dma` - The dma that the request came through
+* `handler` - The “controller” or action that processed the request
+* `rid` - request id - A unique identifier for every incoming request
+* `level` - The log level, ie. info, warn, error
+* `path` - The request path
+* `sc` - Status code. ie 200, 404, 500
+* `t` - The ISO8601 timestamp of the log statement
 
 ---
 
@@ -138,19 +142,53 @@ Grouped together alerts. Because alerts don't support templating some alerts mus
 ### Linkerd, Consul, ECS, etc... dashboards
 More detailed information on the infrustructure
 
-* Linkerd will show a good overview on throughput of the services and overall success/failure rate by service
-* Consul dashboard will provide you insight into the overall health of consul
+* Linkerd will show a good overview on throughput of the services and overall success/failure rate by service.
+* Consul dashboard will provide you insight into the overall health of consul.
 * ECS System Usage will provide insight into the number of hosts and utilization of the container instances.
 
 ---
 
-## Splunk Advanced Topics
+# Splunk Advanced Topics
 
 ---
 
-### Creating a dashboard
+## Creating a dashboard
 
+1. Click on "Dashboards" in top bar.
+2. Click on "Create new Dashboard".
+3. Name your dashboard and set the permissions settings accordingly.
 
+---
+
+### Add inputs to your dashboard
+
+#### Add a index filter
+
+1. Click "Add Input".
+2. Choose Dropdown.
+3. Give it a label (optional).
+4. Click "Search on Change".
+5. Give it a memorable token name. You will reference this as `${tokenName}$` in your queries.
+6. Make it dynamic or static. Dynamic indices would be:
+  ```
+  | eventcount summarize=false index=* | dedup index | fields index
+  ```
+7. Choose defaults.
+
+---
+
+#### Add a time range filter
+
+1. Click "Add Input".
+2. Choose Dropdown.
+3. Give it a label (optional).
+4. Click "Search on Change".
+5. Give it a memorable token name. You will reference this as `${tokenName}$` in your queries.
+6. Make it dynamic or static. Dynamic indices would be:
+  ```
+  | eventcount summarize=false index=* | dedup index | fields index
+  ```
+7. Choose defaults.
 
 ---
 
